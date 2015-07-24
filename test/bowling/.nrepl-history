@@ -1,0 +1,8 @@
+(doc ns)
+(doc require)
+(doc use)
+(doc refer)
+(require 'bowling.core-test)
+(require 'bowling.core)
+(require 'clojure.test.check)
+exit

@@ -20,16 +20,16 @@
          (filter #(and (not= (first %) 10)
                        (= (apply + %) 10)))))
 
-(defn simulate-bowling-game [rolls]
+(defn- simulate-bowling-game [rolls]
     (->> (map bowling.core/roll! rolls)
          last
          (bowling.core/score-game)))
 
-(defn bowling-game-valid [expected actual]
+(defn- bowling-game-valid [expected actual]
     (and (= expected actual)
          (nil? (bowling.core/roll! 0))))
 
-(defn game-verifier [roll-sel roll-cal sum-fn]
+(defn- game-verifier [roll-sel roll-cal sum-fn]
     (prop/for-all [game (gen/vector (gen/elements roll-sel) 10)]
         (let [begin (bowling.core/start-game!)
               rolls (roll-cal game)

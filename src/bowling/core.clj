@@ -52,7 +52,7 @@
                             (frame-complete? (first %)))]
         (->> (take frames-per-game (partition-all 3 1 frames))
              (map frame-good?)
-             (reduce = true)
+             (apply =)
              (and (>= (count frames) frames-per-game)))))
 
 

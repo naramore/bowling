@@ -7,7 +7,7 @@
             [clojure.math.combinatorics :as combo]
             [clojure.test.check.clojure-test :refer :all]))
 
-(def check-num 1000)
+(def check-num 10000)
 
 (def bad-rolls
     (->> (range 0 10)
@@ -53,9 +53,41 @@
                          (apply concat)
                          (apply +))))
 
+(defspec support-for-spares
+    check-num
+    (prop/for-all [spare-frame (gen/elements spare-rolls)
+                   second-roll (gen/elements (range 0 11))]
+        (let [begin (bowling.core/start-game!)
+              rolls (into (vec spare-frame) [second-roll])
+              expected (->> (partition-all 3 2 rolls)
+                            (apply concat)
+                            (apply +))
+              actual (simulate-bowling-game rolls)]
+            (= expected actual))))
+
+(defspec support-for-strikes
+    check-num
+    (prop/for-all [second-frame (gen/elements (concat bad-rolls spare-rolls))]
+        (let [begin (bowling.core/start-game!)
+              rolls (into [10] second-frame)
+              expected (->> (apply + second-frame)
+                            (* 2)
+                            (+ 10))
+              actual (simulate-bowling-game rolls)]
+            (= expected actual))))
+
+(deftest gutter-ball-game-score-zero
+    (testing "That a gutter ball games score zero points"
+        (let [begin (bowling.core/start-game!)
+              rolls (repeat 20 0)
+              final-score 0
+              result (simulate-bowling-game rolls)]
+            (is (bowling-game-valid final-score result)))))
+
 (deftest all-strikes-score-three-hundred
-    (let [begin (bowling.core/start-game!)
-          rolls (repeat 12 10)
-          final-score 300
-          result (simulate-bowling-game rolls)]
-        (is (bowling-game-valid final-score result))))
+    (testing "That a perfect game scores 300 points"
+        (let [begin (bowling.core/start-game!)
+              rolls (repeat 12 10)
+              final-score 300
+              result (simulate-bowling-game rolls)]
+            (is (bowling-game-valid final-score result)))))
